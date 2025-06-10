@@ -30,9 +30,9 @@ model imoveis {
   imovel_valor_condominio String?     @db.VarChar(255)
   imovel_imagem           String      @db.VarChar(255)
   imovel_descricao        String      @db.VarChar(255)
-  imovel_quartos          Int      @default(0)
-  imovel_garagens         Int      @default(0)
-  imovel_banheiros        Int      @default(0)
+  imovel_quartos          Int         @default(0)
+  imovel_garagens         Int         @default(0)
+  imovel_banheiros        Int         @default(0)
   imovel_area             Int
   imovel_contato1         String      @db.VarChar(15)
   imovel_contato2         String?     @db.VarChar(15)
@@ -44,8 +44,8 @@ model usuarios {
   usuario_nome       String      @db.VarChar(100)
   usuario_email      String      @db.VarChar(100)
   usuario_senha      String      @db.VarChar(255)
-  usuario_cpf        String?     @db.VarChar(15)
-  usuario_cnpj       String?     @db.VarChar(20)
+  usuario_cpf        String?     @db.VarChar(255)
+  usuario_cnpj       String?     @db.VarChar(255)
   usuario_telefone   String      @db.VarChar(15)
   usuario_nascimento String      @db.VarChar(15)
   usuario_nivel      Int?
