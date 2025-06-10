@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { prisma } from "../services/index.js";
 
 export async function buscarUsuarios() {
@@ -13,8 +14,14 @@ export async function buscarUsuarioPorId(id) {
 }
 
 export async function criarUsuario(dados) {
+    const saltRounds = 10
+    const senhaCriptografada = await bcrypt.hash(dados.usuario_senha, saltRounds)
     return await prisma.usuarios.create({
-        data: dados
+        data: {
+            ...dados,
+            usuario_senha: senhaCriptografada
+        }
+
     });
 }
 
