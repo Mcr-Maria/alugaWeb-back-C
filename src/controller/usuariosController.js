@@ -24,27 +24,33 @@ export async function buscarUsuarioPorId(id) {
     }
 }
 
-export async function criarUsuario(dados) {
+export async function criarUsuario(data) {
     try {
-        const saltRounds = 10
-        const senhaCriptografada = await bcrypt.hash(dados.usuario_senha, saltRounds)
-        const cpfCriptografado = await bcrypt.hash(dados.usuario_cpf, saltRounds)
-        const cnpjCriptografado = await bcrypt.hash(dados.usuario_cnpj, saltRounds)
+        const saltRounds = 10;
+        const senhaCriptografada = await bcrypt.hash(data.usuario_senha, saltRounds);
+
+        // Evite criptografar CPF/CNPJ com bcrypt se precisar consultar depois
         return await prisma.usuarios.create({
             data: {
-                ...dados,
+                usuario_nome: data.usuario_nome,
+                usuario_email: data.usuario_email,
                 usuario_senha: senhaCriptografada,
-                usuario_cpf: cpfCriptografado,
-                usuario_cnpj: cnpjCriptografado
+                usuario_cpf: data.usuario_cpf,
+                usuario_cnpj: data.usuario_cnpj,
+                usuario_telefone: data.usuario_telefone,
+                usuario_nascimento: data.usuario_nascimento,
+                usuario_nivel: data.usuario_nivel,
+                usuario_imagem: data.usuario_imagem
             }
-
         });
     } catch (error) {
-        return error.message
+        console.error(error);
+        return { erro: "Erro ao criar usuário" };
     }
 }
 
-export async function editarUsuarios(id, dados) {
+
+export async function editarUsuarios(id, data) {
     const saltRounds = 10
     const senhaCriptografada = await bcrypt.hash(dados.usuario_senha, saltRounds)
     const cpfCriptografado = await bcrypt.hash(dados.usuario_cpf, saltRounds)
@@ -55,10 +61,15 @@ export async function editarUsuarios(id, dados) {
                 usuario_id: Number(id)
             },
             data: {
-                ...dados,
+                usuario_nome: data.usuario_nome,
+                usuario_email: data.usuario_email,
                 usuario_senha: senhaCriptografada,
-                usuario_cpf: cpfCriptografado,
-                usuario_cnpj: cnpjCriptografado
+                usuario_cpf: data.usuario_cpf,
+                usuario_cnpj: data.usuario_cnpj,
+                usuario_telefone: data.usuario_telefone,
+                usuario_nascimento: data.usuario_nascimento,
+                usuario_nivel: data.usuario_nivel,
+                usuario_imagem: data.usuario_imagem
             }
         });
     } catch (error) {
