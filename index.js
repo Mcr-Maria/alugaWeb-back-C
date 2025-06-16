@@ -14,13 +14,14 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
+
 
 
 app.post("/login", async (req, res) => {
     res.send(await login(req.body))
 })
 
-app.use('/files', express.static(path.join(__dirname, 'uploads')));
 
 
 

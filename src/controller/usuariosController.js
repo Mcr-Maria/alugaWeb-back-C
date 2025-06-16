@@ -103,7 +103,7 @@ export async function login(dados) {
             return ("Credencias inválidas1")
         }
         const senhaComparada = await bcrypt.compare(usuario_senha, user.usuario_senha);
-        console.log(senhaComparada)
+     
         if (!senhaComparada) {
             return "Credenciais inválidas2"
         }
