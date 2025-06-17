@@ -1,15 +1,10 @@
 import { Router } from "express";
-import { buscarImoveis, buscarImovelPorId, criarImovel, deletarImovel, editarImovel, pesquisarImovelPorQuery } from "../controller/imoveisController.js";
+import { buscarImoveis, buscarImovelPorId, criarImovel, deletarImovel, editarImovel } from "../controller/imoveisController.js";
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-    res.send(await buscarImoveis());
-});
+router.get('/', buscarImoveis);
 
-router.get("/", async (req, res) => {
-    res.send(await pesquisarImovelPorQuery(req.params))
-})
 
 router.get('/:id', async (req, res) => {
     res.send(await buscarImovelPorId(req.params.id));

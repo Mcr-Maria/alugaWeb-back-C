@@ -9,44 +9,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-export async function buscarImoveis() {
+export async function buscarImoveis(req, res) {
+    const { modalidade, cidade, estado, tipo, precoMin, precoMax, quartos, banheiros, garagens } = req.query;
     try {
-        return await prisma.imoveis.findMany();
-
-    } catch (error) {
-        return {
-            tipo: "error",
-            mensagem: error.message
-        }
-    }
-}
-
-export async function pesquisarImovelPorQuery(req, res) {
-    const dados = req.query
-
-    const filtros = {}
-
-    if (dados.cidade) {
-        filtros.imovel_cidade = { contains: cidade, mode: "insensitive" }
-    }
-
-    if (dados.tipo) {
-        filtros.imovel_tipo = tipo
-    }
-
-    try {
-
         const imoveis = await prisma.imoveis.findMany({
-            where: filtros
+            where: {
+                ...(modalidade && { imovel_modalidade: modalidade }),
+                ...(cidade && { imovel_cidade: cidade }),
+                ...(estado && { imovel_estado: estado }),
+                ...(tipo && { imovel_tipo: tipo }),
+                ...(quartos && { imovel_quartos: parseInt(quartos) }),
+                ...(banheiros && { imovel_banheiros: parseInt(banheiros) }),
+                ...(garagens && { imovel_garagens: parseInt(garagens) }),
+                ...(precoMin && {
+                    imovel_valor: {
+                        gte: precoMin.toString()
+                    }
+                }),
+                ...(precoMax && {
+                    imovel_valor: {
+                        lte: precoMax.toString()
+                    }
+                }),
+
+            },
         });
-        res.status(200).json(imoveis);
 
-    } catch (error) {
-        console.log("Erro ao buscar imóveis", error);
-        res.status(500).json({ erro: "Erro ao buscar imóveis, caiu no catch" })
-
+        res.json(imoveis);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Erro" });
     }
-
 }
 
 export async function buscarImovelPorId(id) {
