@@ -119,9 +119,9 @@ export async function editarUsuarios(id, data) {
                 usuario_cpf: data.usuario_cpf,
                 usuario_cnpj: data.usuario_cnpj,
                 usuario_telefone: data.usuario_telefone,
-                // usuario_nascimento: data.usuario_nascimento,
-                // usuario_nivel: data.usuario_nivel,
-                // usuario_imagem: data.usuario_imagem
+                usuario_nascimento: data.usuario_nascimento,
+                usuario_nivel: data.usuario_nivel,
+                usuario_imagem: data.usuario_imagem
             }
         });
     } catch (error) {

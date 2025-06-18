@@ -35,7 +35,7 @@ export const listarFavoritos = async (req, res) => {
       },
     });
 
-    // Retorna tudo — favoritos com imóvel dentro
+  
     res.json(favoritos);
   } catch (error) {
     res.status(500).json({ error: "Erro ao listar favoritos." });
