@@ -1,9 +1,16 @@
 import bcrypt from "bcrypt";
+import formidable from "formidable";
+import fs from "fs";
 import jwt from 'jsonwebtoken';
+import path from "path";
+import { fileURLToPath } from "url";
+import { promisify } from "util";
 import { prisma } from "../services/index.js";
+const copyFileAsync = promisify(fs.copyFile);
+const unlinkAsync = promisify(fs.unlink);
 
-
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export async function buscarUsuarios() {
     try {
         return await prisma.usuarios.findMany();
@@ -24,28 +31,74 @@ export async function buscarUsuarioPorId(id) {
     }
 }
 
-export async function criarUsuario(data) {
+export async function criarUsuario(req, res) {
     try {
-        const saltRounds = 10;
-        const senhaCriptografada = await bcrypt.hash(data.usuario_senha, saltRounds);
+        function pegarString(valor) {
+            if (Array.isArray(valor)) return String(valor[0]);
+            return String(valor);
+        }
 
-        // Evite criptografar CPF/CNPJ com bcrypt se precisar consultar depois
-        return await prisma.usuarios.create({
+
+
+
+        const form = formidable({ multiples: true });
+
+        const { fields, files } = await new Promise((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+                if (err) reject(err);
+                else resolve({ fields, files });
+            });
+        });
+
+        if (!files.usuario_imagem) {
+            return res.status(400).json({
+                tipo: "warning",
+                mensagem: "O arquivo é obrigatório"
+            });
+        }
+
+        const filenameOriginal = files.usuario_imagem.originalFilename || files.usuario_imagem[0]?.originalFilename;
+
+        if (!filenameOriginal || (!filenameOriginal.includes("png") && !filenameOriginal.includes("jpg") && !filenameOriginal.includes("jpeg"))) {
+            return res.status(400).json({
+                tipo: "warning",
+                mensagem: "O arquivo precisa ser do tipo png, jpg ou jpeg"
+            });
+        }
+
+        const oldpath = files.usuario_imagem.filepath || files.usuario_imagem[0]?.filepath;
+        const filenameParts = filenameOriginal.split('.');
+        const sanitizedBaseName = filenameParts[0].replace(/\s+/g, '-');
+        const newFilename = `${sanitizedBaseName}-${Date.now()}.${filenameParts[1]}`;
+        const newpath = path.join(__dirname, '../uploads/imoveis', newFilename);
+
+
+        fs.mkdirSync(path.dirname(newpath), { recursive: true });
+
+        await copyFileAsync(oldpath, newpath);
+        await unlinkAsync(oldpath);
+
+        const saltRounds = 10;
+        const senhaCriptografada = await bcrypt.hash(pegarString(fields.usuario_senha), saltRounds);
+        const nivelInt = parseInt(fields.usuario_nivel, 10);
+        await prisma.usuarios.create({
             data: {
-                usuario_nome: data.usuario_nome,
-                usuario_email: data.usuario_email,
+                usuario_nome: pegarString(fields.usuario_nome),
+                usuario_email: pegarString(fields.usuario_email),
                 usuario_senha: senhaCriptografada,
-                usuario_cpf: data.usuario_cpf,
-                usuario_cnpj: data.usuario_cnpj,
-                usuario_telefone: data.usuario_telefone,
-                usuario_nascimento: data.usuario_nascimento,
-                usuario_nivel: data.usuario_nivel,
-                usuario_imagem: data.usuario_imagem
+                usuario_cpf: pegarString(fields.usuario_cpf),
+                usuario_cnpj: pegarString(fields.usuario_cnpj),
+                usuario_telefone: pegarString(fields.usuario_telefone),
+                usuario_nascimento: pegarString(fields.usuario_nascimento),
+                usuario_nivel: nivelInt,
+                usuario_imagem: 'http://localhost:8000/uploads/imoveis/' + newFilename
             }
         });
+
+        return res.status(201).json({ tipo: "success", mensagem: "Usuário criado com sucesso" });
+
     } catch (error) {
-        console.error(error);
-        return { erro: "Erro ao criar usuário" };
+        return res.status(500).json({ tipo: "error", mensagem: error.message });
     }
 }
 
@@ -53,8 +106,7 @@ export async function criarUsuario(data) {
 export async function editarUsuarios(id, data) {
     const saltRounds = 10
     const senhaCriptografada = await bcrypt.hash(dados.usuario_senha, saltRounds)
-    const cpfCriptografado = await bcrypt.hash(dados.usuario_cpf, saltRounds)
-    const cnpjCriptografado = await bcrypt.hash(dados.usuario_cnpj, saltRounds)
+
     try {
         return await prisma.usuarios.update({
             where: {
@@ -67,9 +119,9 @@ export async function editarUsuarios(id, data) {
                 usuario_cpf: data.usuario_cpf,
                 usuario_cnpj: data.usuario_cnpj,
                 usuario_telefone: data.usuario_telefone,
-                usuario_nascimento: data.usuario_nascimento,
-                usuario_nivel: data.usuario_nivel,
-                usuario_imagem: data.usuario_imagem
+                // usuario_nascimento: data.usuario_nascimento,
+                // usuario_nivel: data.usuario_nivel,
+                // usuario_imagem: data.usuario_imagem
             }
         });
     } catch (error) {
@@ -103,7 +155,7 @@ export async function login(dados) {
             return ("Credencias inválidas1")
         }
         const senhaComparada = await bcrypt.compare(usuario_senha, user.usuario_senha);
-     
+
         if (!senhaComparada) {
             return "Credenciais inválidas2"
         }

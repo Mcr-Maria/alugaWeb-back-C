@@ -11,8 +11,9 @@ router.get('/:id', async (req, res) => {
     res.send(await buscarUsuarioPorId(req.params.id));
 });
 router.post('/', async (req, res) => {
-    res.send(await criarUsuario(req.body));
+    await criarUsuario(req, res);
 });
+
 router.put('/:id', async (req, res) => {
     res.send(await editarUsuarios(req.params.id, req.body));
 });

@@ -88,7 +88,7 @@ export async function criarImovel(req) {
         const oldpath = files.imovel_imagem.filepath || files.imovel_imagem[0]?.filepath;
 
         const filenameParts = filenameOriginal.split('.');
-        const sanitizedBaseName = filenameParts[0].replace(/\s+/g, '-'); // troca espaços por hífen
+        const sanitizedBaseName = filenameParts[0].replace(/\s+/g, '-');
         const newFilename = `${sanitizedBaseName}-${Date.now()}.${filenameParts[1]}`;
         const newpath = path.join(__dirname, '../uploads/imoveis', newFilename);
 
