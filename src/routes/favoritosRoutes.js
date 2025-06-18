@@ -11,7 +11,8 @@ router.post('/', adicionarFavorito);
 router.get('/:usuario_id', listarFavoritos);
 
 
-router.delete('/', removerFavorito);
+router.delete('/:usuario_id/:imovel_id', removerFavorito);
+
 
 export { router as favoritosRoutes };
 

@@ -42,16 +42,15 @@ export const listarFavoritos = async (req, res) => {
   }
 };
 
-
 export const removerFavorito = async (req, res) => {
-  const { usuario_id, imovel_id } = req.body;
+  const { usuario_id, imovel_id } = req.params;
 
   try {
     await prisma.favoritos.deleteMany({
       where: {
-        usuario_id,
-        imovel_id
-      }
+        usuario_id: Number(usuario_id),
+        imovel_id: Number(imovel_id),
+      },
     });
 
     res.json({ message: 'Favorito removido com sucesso.' });
@@ -59,4 +58,5 @@ export const removerFavorito = async (req, res) => {
     res.status(500).json({ error: 'Erro ao remover favorito.' });
   }
 };
+
 
