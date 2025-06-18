@@ -3,6 +3,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { login } from "./src/controller/usuariosController.js";
+import { favoritosRoutes } from "./src/routes/favoritosRoutes.js";
 import { imoveisRoutes } from "./src/routes/imoveisRoutes.js";
 import { usuariosRoutes } from "./src/routes/usuariosRoutes.js";
 import { verificarToken } from "./src/utils/index.js";
@@ -28,7 +29,7 @@ app.post("/login", async (req, res) => {
 app.use("/usuarios", usuariosRoutes)
 
 app.use("/imoveis", verificarToken, imoveisRoutes)
-
+app.use('/favoritos', favoritosRoutes);
 app.use((req, res) => {
     res.status(404).send("Rota não encontrada")
 })
